@@ -1,27 +1,25 @@
 from budgets.serializers.budget_serializer import BudgetSerializer
 from budgets.lib.budget_query import BudgetQuery
-from rest_framework import views, exceptions
-from rest_framework.response import Response
-from django.http import Http404
-from rest_framework import status
+from rest_framework import exceptions, generics
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
-class MonthlyBudgetList(views.APIView):
+class MonthlyBudgetList(generics.ListCreateAPIView):
 
-    def get(self, request):
+    serializer_class = BudgetSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+    def get_queryset(self):
+        request = self.request
+        user = self.request.user
         year = request.query_params.get('year')
         month = request.query_params.get('month')
-
         if year is not None and month is not None:
-            query_data = BudgetQuery(year, month).monthly_budget()
-            results = BudgetSerializer(query_data, many = True).data
-            return Response(results)
+            self.queryset = BudgetQuery(year, month, user).monthly_budget()
+            return self.queryset
         else:
             raise exceptions.ParseError("month or year no correctly provided")
-
-    def post(self, request):
-        serializer = BudgetSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

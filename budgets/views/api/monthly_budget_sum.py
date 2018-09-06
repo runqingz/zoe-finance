@@ -1,19 +1,25 @@
 from budgets.serializers.budget_sum_serializer import BudgetSumSerializer
 from budgets.lib.budget_query import BudgetQuery
-from rest_framework import views, exceptions
-from rest_framework.response import Response
+from rest_framework import exceptions, generics
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
-class MonthlyBudgetSumList(views.APIView):
+class MonthlyBudgetSumList(generics.ListCreateAPIView):
 
-    def get(self, request):
+    serializer_class = BudgetSumSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+    def get_queryset(self):
+        request = self.request
+        user = self.request.user
         year = request.query_params.get('year')
         month = request.query_params.get('month')
-
         if year is not None and month is not None:
-            query_data = BudgetQuery(year, month).monthly_budget_sum()
-            results = BudgetSumSerializer(query_data, many=False).data
-            return Response(results)
+            self.queryset = BudgetQuery(year, month, user).monthly_budget_sum()
+            return self.queryset
         else:
             raise exceptions.ParseError("month or year no correctly provided")
-
