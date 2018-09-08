@@ -7,7 +7,6 @@ from budgets.lib.auth import TokenAuthentication
 class AllBudgetList(generics.ListCreateAPIView):
 
     serializer_class = BudgetSerializer
-    permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

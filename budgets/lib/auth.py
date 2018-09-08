@@ -39,11 +39,10 @@ class TokenAuthentication(BaseAuthentication):
     def authenticate_credentials(self, token):
         model = self.get_model()
         try:
-
             payload = jwt.decode(token, "finance_sercret_key")
             email = payload['email']
             userid = payload['id']
-            msg = {'Error': "Token mismatch",'status' :"401"}
+            msg = {'Error': "Token mismatch",'status' :"403"}
 
             user = User.objects.get(
                 email=email,
@@ -53,9 +52,9 @@ class TokenAuthentication(BaseAuthentication):
 
             if user is None:
                 raise exceptions.AuthenticationFailed(msg)
-
-        except jwt.ExpiredSignature or jwt.DecodeError or jwt.InvalidTokenError or jwt.InvalidSignatureError:
-            return HttpResponse({'Error': "Token is invalid"}, status="403")
+        except (jwt.DecodeError, jwt.ExpiredSignature, jwt.InvalidTokenError, jwt.InvalidSignatureError):
+            msg = {'Error': "Invalid Token",'status' :"403"}
+            raise exceptions.AuthenticationFailed(msg)
 
         return (user, token)
 
