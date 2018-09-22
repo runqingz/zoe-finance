@@ -10,20 +10,20 @@ class Login(views.APIView):
 
     def post(self, request):
         if not request.data:
-            return Response({'Error': "Please provide username/password"}, status="400")
+            return Response({'error': "Please provide username/password"}, status="400")
         username = request.data['username']
         password = request.data['password']
 
         user = authenticate(username=username, password=password)
 
         if user is None:
-            return Response({'Error': "incorrect username/password"}, status="403")
+            return Response({'error': "incorrect username/password"}, status="403")
 
         payload = {
             'id': user.id,
             'email': user.email
         }
-        jwt_token = {'token': jwt.encode(payload, "finance_sercret_key").decode('utf-8')}
+        jwt_token = {"token": jwt.encode(payload, "finance_sercret_key").decode('utf-8')}
 
         return Response(
             json.dumps(jwt_token),

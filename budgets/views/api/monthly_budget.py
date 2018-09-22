@@ -14,12 +14,11 @@ class MonthlyBudgetList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         request = self.request
-        credential_facts = TokenAuthentication().authenticate(request)
-        user = credential_facts[0]
+        username = self.request.user.username 
         year = request.query_params.get('year')
         month = request.query_params.get('month')
         if year is not None and month is not None:
-            self.queryset = BudgetQuery(year, month, user).monthly_budget()
+            self.queryset = BudgetQuery(year, month, username).monthly_budget()
             return self.queryset
         else:
             raise exceptions.ParseError("month or year no correctly provided")

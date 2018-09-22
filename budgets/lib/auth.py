@@ -42,7 +42,7 @@ class TokenAuthentication(BaseAuthentication):
             payload = jwt.decode(token, "finance_sercret_key")
             email = payload['email']
             userid = payload['id']
-            msg = {'Error': "Token mismatch",'status' :"403"}
+            msg = {'error': "Token mismatch",'status' :"403"}
 
             user = User.objects.get(
                 email=email,
@@ -53,7 +53,7 @@ class TokenAuthentication(BaseAuthentication):
             if user is None:
                 raise exceptions.AuthenticationFailed(msg)
         except (jwt.DecodeError, jwt.ExpiredSignature, jwt.InvalidTokenError, jwt.InvalidSignatureError):
-            msg = {'Error': "Invalid Token",'status' :"403"}
+            msg = {'error': "Invalid Token",'status' :"403"}
             raise exceptions.AuthenticationFailed(msg)
 
         return (user, token)
