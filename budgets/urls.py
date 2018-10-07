@@ -9,5 +9,4 @@ urlpatterns = [
     path('api/monthly', monthly_budget.MonthlyBudgetList.as_view()),
     path('api/monthly_sum', monthly_budget_sum.MonthlyBudgetSumList.as_view()),
     path('api/login', obtain_jwt_token),
-    path('api/logout', logout.Logout.as_view()),
     ]
